@@ -39,7 +39,7 @@ api.interceptors.response.use(
     if (status === 401 && !originalRequest?._retry) {
       originalRequest._retry = true;
       try {
-        await refreshClient.post('/auth/refresh', {});
+        await refreshClient.post('/api/auth/refresh', {});
         return api(originalRequest);
       } catch {
         // Refresh also failed — dispatch a global event so AuthContext can
