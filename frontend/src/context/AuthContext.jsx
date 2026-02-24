@@ -43,7 +43,11 @@ export const AuthProvider = ({ children }) => {
     const handleForceLogout = async () => {
       await api.post('/api/auth/logout', {}).catch(() => { });
       setUser(null);
-      window.location.href = '/login';
+
+      const publicPaths = ['/login', '/signup', '/forgot-password', '/forgot-password/verify', '/forgot-password/reset', '/verify-email', '/'];
+      if (!publicPaths.includes(window.location.pathname)) {
+        window.location.href = '/login';
+      }
     };
     window.addEventListener('auth:logout', handleForceLogout);
     return () => window.removeEventListener('auth:logout', handleForceLogout);
