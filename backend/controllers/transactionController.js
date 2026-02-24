@@ -8,23 +8,24 @@ const TransactionActivity = require("../models/TransactionActivity");
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const { escapeRegex } = require('../utils/helpers');
 
 const transactionSchema = z.object({
-  type: z.enum(['income', 'expense']),
-  amount: z.preprocess(
-    (val) => (typeof val === 'string' ? Number(val) : val),
-    z.number().finite().positive("Amount must be greater than 0")
-  ),
-  category: z.string().trim().min(1, "Category is required").toLowerCase(),
-  description: z.string().trim().optional().default(''),
-  paymentMethod: z.string().trim().optional().default('cash'),
-  mood: z.string().trim().optional().default('neutral'),
-  date: z.preprocess(
-    (val) => (val ? new Date(val) : undefined),
-    z.date().optional()
-  ),
-  isRecurring: z.boolean().optional().default(false),
-  recurringInterval: z.enum(['daily','weekly','monthly']).nullable().optional()
+    type: z.enum(['income', 'expense']),
+    amount: z.preprocess(
+        (val) => (typeof val === 'string' ? Number(val) : val),
+        z.number().finite().positive("Amount must be greater than 0")
+    ),
+    category: z.string().trim().min(1, "Category is required").toLowerCase(),
+    description: z.string().trim().optional().default(''),
+    paymentMethod: z.string().trim().optional().default('cash'),
+    mood: z.string().trim().optional().default('neutral'),
+    date: z.preprocess(
+        (val) => (val ? new Date(val) : undefined),
+        z.date().optional()
+    ),
+    isRecurring: z.boolean().optional().default(false),
+    recurringInterval: z.enum(['daily', 'weekly', 'monthly']).nullable().optional()
 });
 
 // Helper to handle transaction cleanup
@@ -174,22 +175,22 @@ const getAllTransactions = catchAsync(async (req, res) => {
             date: new Date()
         });
 
-            await transaction.save();
+        await transaction.save();
 
-            await logTransactionActivity({
-    userId,
-    transactionId: transaction._id,
-    action: "CREATED"
-});
+        await logTransactionActivity({
+            userId,
+            transactionId: transaction._id,
+            action: "CREATED"
+        });
         await newTransaction.save();
 
         let nextDate = new Date(rt.nextExecutionDate);
 
-            await User.findByIdAndUpdate(
-                userId,
-                { $inc: { walletBalance: balanceChange } },
-                
-            );
+        await User.findByIdAndUpdate(
+            userId,
+            { $inc: { walletBalance: balanceChange } },
+
+        );
         if (rt.recurringInterval === "daily") nextDate.setDate(nextDate.getDate() + 1);
         else if (rt.recurringInterval === "weekly") nextDate.setDate(nextDate.getDate() + 7);
         else if (rt.recurringInterval === "monthly") nextDate.setMonth(nextDate.getMonth() + 1);
@@ -211,7 +212,8 @@ const getAllTransactions = catchAsync(async (req, res) => {
     }
 
     if (search) {
-        const regex = new RegExp(search, 'i');
+        const safeSearch = escapeRegex(search);
+        const regex = new RegExp(safeSearch, 'i');
         query.$or = [{ description: regex }, { category: regex }];
     }
 
@@ -368,26 +370,6 @@ const skipNextOccurrence = async (req, res) => {
             message: 'Error skipping next occurrence'
         });
     }
-
-    const balanceChange =
-      transaction.type==='income'
-        ? -transaction.amount
-        : transaction.amount;
-
-    await User.findByIdAndUpdate(userId,{
-      $inc:{walletBalance:balanceChange}
-    });
-
-    res.json({
-      success:true,
-      message:'Transaction deleted successfully',
-      deletedTransaction:transaction
-    });
-
-  }catch(error){
-    console.error('Delete transaction error:',error);
-    res.status(500).json({success:false,message:'Error deleting transaction'});
-  }
 };
 
 const undoTransaction = async (req, res) => {
@@ -460,7 +442,7 @@ const getTransactionActivity = async (req, res) => {
             transactionId,
             userId
         })
-        .sort({ timestamp: -1 });
+            .sort({ timestamp: -1 });
 
         res.json({
             success: true,
@@ -476,11 +458,11 @@ const getTransactionActivity = async (req, res) => {
     }
 };
 module.exports = {
-   addTransaction,
-   getAllTransactions,
-   updateTransaction,
-   deleteTransaction,
-   undoTransaction,
-   skipNextOccurrence,
-   getTransactionActivity 
+    addTransaction,
+    getAllTransactions,
+    updateTransaction,
+    deleteTransaction,
+    undoTransaction,
+    skipNextOccurrence,
+    getTransactionActivity
 };
