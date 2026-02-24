@@ -178,6 +178,8 @@ const sendPasswordResetInstructions = async (user, { skipEmail } = {}) => {
   await sendEmail({ to: user.email, subject, text, html });
   return { otp, token, resetLink, delivered: true };
 };
+
+
 const register = asyncHandler(async (req, res) => {
   console.log('📝 Incoming Registration Request:', JSON.stringify(req.body, null, 2));
 
@@ -216,6 +218,23 @@ const register = asyncHandler(async (req, res) => {
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
+  user.refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+  await user.save();
+
+  setAuthCookies(res, accessToken, refreshToken);
+
+    year
+  });
+
+  await user.setPassword(password);
+
+  // Skip email verification locally
+  user.emailVerified = true;
+
+  await user.save();
+
+  const accessToken = signAccessToken(user);
+  const refreshToken = signRefreshToken(user);
   user.refreshTokenHash = await bcrypt.hash(refreshToken, 10);
   await user.save();
 
@@ -280,6 +299,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
    
+
 
 const refresh = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refresh_token;
