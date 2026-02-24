@@ -5,7 +5,7 @@ const { z } = require('zod');
 const { isValidObjectId } = require('../utils/validation');
 const logTransactionActivity = require("../utils/activityLogger");
 const TransactionActivity = require("../models/TransactionActivity");
-
+const { processEvent } = require("../utils/gamificationEngine");
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -95,7 +95,7 @@ const addTransaction = catchAsync(async (req, res, next) => {
         });
     }
 
-    await withTransaction(async (session) => {
+    const result = await withTransaction(async (session) => {
 
         let nextExecutionDate = null;
 
@@ -133,11 +133,19 @@ const addTransaction = catchAsync(async (req, res, next) => {
             { session }
         );
 
-        return res.status(201).json({
-            success: true,
-            message: 'Transaction added successfully',
-            transaction
-        });
+        // Gamification
+        const userDoc = await User.findById(userId).session(session);
+        const gamificationUpdate = processEvent(userDoc, 'TRANSACTION_ADDED');
+        await userDoc.save({ session });
+
+        return { transaction, gamificationUpdate };
+    });
+
+    return res.status(201).json({
+        success: true,
+        message: 'Transaction added successfully',
+        transaction: result.transaction,
+        gamification: result.gamificationUpdate
     });
 });
 
