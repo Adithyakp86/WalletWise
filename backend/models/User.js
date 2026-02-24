@@ -133,6 +133,26 @@ const userSchema = new mongoose.Schema({
   refreshTokenHash: {
     type: String
   },
+  // Gamification Settings
+  totalXP: {
+    type: Number,
+    default: 0
+  },
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  highestStreak: {
+    type: Number,
+    default: 0
+  },
+  lastTransactionDate: {
+    type: Date,
+    default: null
+  },
+  unlockedBadges: [{
+    type: String
+  }],
   createdAt: {
     type: Date,
     default: Date.now

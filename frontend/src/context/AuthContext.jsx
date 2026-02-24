@@ -78,6 +78,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserLocally = useCallback((updates) => {
+    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -89,7 +93,8 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         logout,
         refreshSession,
-        reloadUser: loadUser
+        reloadUser: loadUser,
+        updateUserLocally
       }}
     >
       {children}
