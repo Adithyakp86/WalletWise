@@ -21,6 +21,7 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import DecisionHelper from './pages/DecisionHelper';
 import MoodInsight from './pages/MoodInsight';
+import GamificationDashboard from './pages/GamificationDashboard'; // NEW: Gamification
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 
 // Import authentication components
@@ -260,6 +261,16 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MoodInsight />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Gamification Route */}
+              <Route
+                path="/gamification"
+                element={
+                  <ProtectedRoute>
+                    <GamificationDashboard />
                   </ProtectedRoute>
                 }
               />

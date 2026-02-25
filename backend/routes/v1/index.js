@@ -10,6 +10,8 @@ const subscriptionRoutes = require('../subscriptionRoutes');
 const insightsRoutes = require('../insightsRoutes');
 const analyticsRoutes = require('../analyticsRoutes');
 
+const gamificationRoutes = require('../gamificationRoutes');
+
 // Health check inside v1
 router.get('/health', (req, res) => {
     res.json({ status: 'v1 healthy' });
@@ -23,5 +25,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/insights', insightsRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/gamification', gamificationRoutes);
 
 module.exports = router;
