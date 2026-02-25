@@ -111,7 +111,7 @@ const Transactions = () => {
 
       console.log('Fetching with params:', params);
 
-      const response = await api.get('/api/transactions', { params, signal });
+      const response = await api.get('/transactions', { params, signal });
 
       if (response.data?.success) {
         setTransactions(response.data.transactions || []);
@@ -209,6 +209,20 @@ const Transactions = () => {
     const content = `${header}\n${body}`;
     const ext = format === 'csv' ? 'csv' : 'xls';
     downloadFile(content, `transactions_export.${ext}`, 'text/plain;charset=utf-8;');
+  };
+
+  const handleSkip = async (id) => {
+    if (!window.confirm('Are you sure you want to skip the next occurrence of this recurring transaction?')) return;
+    try {
+      const response = await api.post(`/api/transactions/${id}/skip`);
+      if (response.data?.success) {
+        alert('Next occurrence skipped successfully!');
+        fetchTransactions();
+      }
+    } catch (err) {
+      console.error('Failed to skip transaction:', err);
+      alert(err.response?.data?.message || 'Failed to skip transaction. Please try again.');
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -354,6 +368,7 @@ const Transactions = () => {
                   <th>Note</th>
                   <th>Amount</th>
                   <th>Mood</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -376,6 +391,18 @@ const Transactions = () => {
                           </span>
                           {mood.label}
                         </span>
+                      </td>
+                      <td>
+                        {tx.isRecurring && (
+                          <button 
+                            className="ghost-button skip-button"
+                            onClick={() => handleSkip(tx._id || tx.id)}
+                            title="Skip Next Occurrence"
+                            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                          >
+                            Skip Next
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

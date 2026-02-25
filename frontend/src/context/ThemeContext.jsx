@@ -51,7 +51,7 @@ export const ThemeProvider = ({ children }) => {
     // Sync to DB in background if user is logged in
     if (authUser) {
       try {
-        await api.put('/api/auth/profile', { theme: newTheme });
+        await api.put('/auth/profile', { theme: newTheme });
       } catch (err) {
         console.error('Failed to sync theme preference to backend:', err);
       }
