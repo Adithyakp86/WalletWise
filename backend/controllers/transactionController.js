@@ -7,6 +7,7 @@ const logTransactionActivity = require("../utils/activityLogger");
 const TransactionActivity = require("../models/TransactionActivity");
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const { escapeRegex } = require('../utils/helpers');
 
 // Local development fallback (no MongoDB replica set)
 const withTransaction = async (operation) => {
