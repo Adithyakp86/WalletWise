@@ -185,7 +185,7 @@ const Dashboard = () => {
     try {
       console.log('???? Fetching dashboard data...');
 
-      const dashboardRes = await api.get('/api/dashboard/summary');
+      const dashboardRes = await api.get('/dashboard/summary');
       const dashboardData = dashboardRes.data;
 
       console.log("📋 Dashboard API Response:", dashboardData);
