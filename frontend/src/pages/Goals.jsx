@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../api/client';
 import SavingGoal from './SavingGoal';
+import Spinner from '../components/Spinner';
 
 import {
   FaBook,
@@ -244,10 +245,7 @@ const Goals = () => {
 
       <section className="goals-grid">
         {loadingGoals ? (
-          <div className="overview-card loading-card">
-            <h3>Loading goals...</h3>
-            <p>Fetching your latest goals.</p>
-          </div>
+          <Spinner size={50} text="Fetching your latest goals..." />
         ) : goalsError ? (
           <div className="overview-card error-card">
             <h3>Could not load goals</h3>

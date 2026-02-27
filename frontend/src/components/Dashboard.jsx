@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import Spinner from './Spinner';
 import './dashboard.css';
 import AddExpense from '../pages/AddExpense';
 import AddIncome from '../pages/AddIncome';
@@ -447,8 +448,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-loading">
-        <div className="spinner"></div>
-        <p>Loading your financial dashboard...</p>
+        <Spinner size={60} text="Loading your financial dashboard..." />
       </div>
     );
   }
