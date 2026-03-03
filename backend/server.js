@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+dotenv.config();
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./middleware/errorMiddleware");
 const passport = require("passport");
@@ -13,11 +14,26 @@ const oauthRoutes = require("./routes/oauthRoutes");
 const { protect } = require("./middleware/auth");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const asyncHandler = require("./middleware/asyncHandler");
-dotenv.config();
 
 // ==================== DEPENDENCY INJECTION ====================
 const { createContainer } = require('./containerBootstrap');
 const container = createContainer();
+const isProd = process.env.NODE_ENV === 'production';
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || (isProd ? null : 'http://localhost:3000');
+const MONGODB_URI =
+  process.env.MONGODB_URI || (isProd ? null : 'mongodb://localhost:27017/walletwise');
+
+if (isProd && !FRONTEND_URL) {
+  console.error('❌ Missing FRONTEND_URL in production environment');
+  process.exit(1);
+}
+
+if (isProd && !MONGODB_URI) {
+  console.error('❌ Missing MONGODB_URI in production environment');
+  process.exit(1);
+}
 
 // Initialize Express app
 const app = express();
@@ -61,7 +77,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // CORS Configuration
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -131,8 +147,6 @@ app.use('/api/auth', authLimiter);
 
 
 // ==================== DATABASE CONNECTION ====================
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/walletwise';
-
 console.log(`🔗 Connecting to MongoDB: ${MONGODB_URI}`);
 
 if (process.env.NODE_ENV !== 'test') {
@@ -287,7 +301,7 @@ if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
         console.log(`\n🚀 Server running on port ${PORT}`);
         console.log(`🔗 API Base URL: http://localhost:${PORT}`);
-        console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+        console.log(`🌐 CORS enabled for: ${FRONTEND_URL}`);
         console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
 
         console.log(`\n📋 AVAILABLE ENDPOINTS:`);
